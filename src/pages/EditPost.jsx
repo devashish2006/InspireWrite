@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, PostCard } from "postcss";
+import { Container, PostCard } from "../components/index";
 import appWriteService from "../appwrite/config";
 import { useNavigate, useParams } from "react-router-dom";
 
