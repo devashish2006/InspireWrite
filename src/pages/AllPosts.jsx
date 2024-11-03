@@ -3,7 +3,7 @@ import { Container, PostCard } from "../components";
 import appWriteService from "../appwrite/config"
 
 function AllPosts() {
-    const [Posts, setPosts] = useState([])
+    const [posts, setPosts] = useState([])
     useEffect(() => {},[])
     appWriteService.getPosts([]).then((posts) => {
         if (posts) {

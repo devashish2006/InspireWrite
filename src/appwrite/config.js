@@ -20,6 +20,7 @@ export class Service{
                 conf.appwriteDatabaseId,
                 conf.appwriteCollectionId,
                 slug,
+                
                 {
                     title,
                     content,

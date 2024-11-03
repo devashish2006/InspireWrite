@@ -1,56 +1,73 @@
-import React, { useCallback } from "react";
-import { set, useForm } from "react-hook-form";
-import { Button, Input, RTE, Select } from "../index";
+import React, { useCallback, useState } from "react";
+import { useForm } from "react-hook-form";
+import { Button, Input, RTE, Select } from "..";
 import appwriteService from "../../appwrite/config";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
+
 export default function PostForm({ post }) {
     const { register, handleSubmit, watch, setValue, control, getValues } = useForm({
         defaultValues: {
-            title: post?.title || "",   
-            slug: post?.slug || "",
+            title: post?.title || "",
+            slug: post?.$id || "",
             content: post?.content || "",
             status: post?.status || "active",
         },
     });
 
+    const [loading, setLoading] = useState(false);  // Add loading state    
+
     const navigate = useNavigate();
     const userData = useSelector((state) => state.auth.userData);
 
     const submit = async (data) => {
-        if(post){
-            const file = data.image[0]? await appwriteService.uploadFile(data, image[0]) : null;
-
-            if (file) {
-                appwriteService.deleteFile(post.featuredImage); 
-            }
-
-            const dbPost = await appwriteService.updatePost(post.$id, {
-                ...data,
-                featuredImage: file ? file.$id : undefined,
-            });
-
-            if (dbPost) {
-                navigate(`/post/${dbPost.$id}`);
-            }
-        } else{
-            const file = await appwriteService.uploadFile(data.image[0]);
-
-            if(file) {
-                const fileId = file.$id;
-                const featuredImage = fileId;
-                const dbPost = await appwriteService.createPost({...data, userId: userData.$id})
-
-                if(dbPost) {
+        if (!userData || !userData.$id) {
+            console.error("User data is missing.");
+            return;
+        }
+        
+        setLoading(true); // Start loading
+        
+        try {
+            if (post) {
+                const file = data.image[0] ? await appwriteService.uploadFile(data.image[0]) : null;
+    
+                if (file) {
+                    appwriteService.deleteFile(post.featuredImage);
+                }
+    
+                const dbPost = await appwriteService.updatePost(post.$id, {
+                    ...data,
+                    featuredImage: file ? file.$id : undefined,
+                });
+    
+                if (dbPost) {
                     navigate(`/post/${dbPost.$id}`);
                 }
+            } else {
+                const file = await appwriteService.uploadFile(data.image[0]);
+    
+                if (file) {
+                    const fileId = file.$id;
+                    console.log((fileId));
+                    data.featuredImage = fileId;
+                    const dbPost = await appwriteService.createPost({ ...data, userId: userData.$id });
+    
+                    if (dbPost) {
+                        navigate(`/post/${dbPost.$id}`);
+                    }
+                }
             }
-        }   
+        } catch (error) {
+            console.error("Error while submitting:", error);
+        } finally {
+            setLoading(false); // Stop loading after the operation is complete
+        }
     }
 
     const slugTransform = useCallback((value) => {
-        if (value && typeof value === "string") 
+        if (value && typeof value === "string")
             return value
                 .trim()
                 .toLowerCase()
@@ -58,16 +75,17 @@ export default function PostForm({ post }) {
                 .replace(/\s/g, "-");
 
         return "";
-    },[])
+    }, []);
 
     React.useEffect(() => {
         const subscription = watch((value, { name }) => {
-            if (name == "title") {
-                setValue("slug", slugTransform(value.title), {shouldValidate: true})
+            if (name === "title") {
+                setValue("slug", slugTransform(value.title), { shouldValidate: true });
             }
         });
+
         return () => subscription.unsubscribe();
-    }, [watch, slugTransform, setValue])
+    }, [watch, slugTransform, setValue]);
 
     return (
         <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
@@ -79,9 +97,9 @@ export default function PostForm({ post }) {
                     {...register("title", { required: true })}
                 />
                 <Input
-                    labolder="Slug"
-                    clael="Slug :"
-                    placehssName="mb-4"
+                    label="Slug :"
+                    placeholder="Slug"
+                    className="mb-4"
                     {...register("slug", { required: true })}
                     onInput={(e) => {
                         setValue("slug", slugTransform(e.currentTarget.value), { shouldValidate: true });
@@ -112,10 +130,16 @@ export default function PostForm({ post }) {
                     className="mb-4"
                     {...register("status", { required: true })}
                 />
-                <Button type="submit" bgColor={post ? "bg-green-500" : undefined} className="w-full">
-                    {post ? "Update" : "Submit"}
+                 <Button type="submit" bgColor={post ? "bg-green-500" : undefined} className="w-full" disabled={loading}>
+                    {loading ? "Loading..." : post ? "Update" : "Submit"}
                 </Button>
             </div>
+            {loading && (
+    <p className="text-center w-full mt-4 text-lg font-semibold text-blue-600 bg-blue-100 p-2 rounded-lg shadow-lg animate-pulse">
+        Submitting, please wait...
+    </p>
+)}
+
         </form>
     );
-} 
+}

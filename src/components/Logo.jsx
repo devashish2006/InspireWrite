@@ -2,7 +2,7 @@ import React from "react";
 
 function Logo({width = '100px'}) {
     return (
-        <div>Logo</div>
+        <img src="../assets/InspireWrite_Logo.jpg" alt="InspireWrite" style={{ width }}/>
     )
 }
 
