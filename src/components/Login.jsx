@@ -1,11 +1,12 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {login as authLogin} from "../store/authSlice"
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import authService from "../appwrite/auth"
 import { useForm } from "react-hook-form";
-import {Button, Logo, Input} from "./index"
+import {Button, Logo, Input, LoadingSpinner} from "./index"
 import { useState } from "react";
+import { setLoading, unSetLoading } from "../store/loadingSlice";
 
 
 function Login() {
@@ -14,8 +15,14 @@ function Login() {
     const {register, handleSubmit} = useForm()
     const [error, setError] = useState("")
 
+    // Retrieve loading state from Redux store
+    const loading = useSelector((state) => state.loading.loading);
+    console.log(`loading stae is ${loading}`);
+    
+
     const login = async(data) => {
         setError("")
+        dispatch(setLoading()); // Start loading
         try {
             const session = await authService.login(data)
             if (session) {
@@ -27,6 +34,8 @@ function Login() {
             
         } catch (error) {
             setError(error.message)
+        } finally {
+            dispatch(unSetLoading()); // End loading
         }
     } 
     return (
@@ -72,10 +81,9 @@ function Login() {
                         required: true,
                     })}
                     />
-                    <Button
-                    type="submit"
-                    className="w-full"
-                    >Sign in</Button>
+                     <Button type="submit" className="w-full">
+                            {loading ? <LoadingSpinner /> : "Login"} {/* Show Spinner or Button text */}
+                        </Button>
                 </div>
             </form>
             </div>

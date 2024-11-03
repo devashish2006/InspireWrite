@@ -12,6 +12,7 @@ import RTE from "./RTE";
 import Select from "./Select";
 import AuthLayout from "./AuthLayout";
 import PostForm from "./post-form/PostForm";
+import LoadingSpinner from "./loadingSpinner";
 
 export  {
     Header,
@@ -28,4 +29,5 @@ export  {
     RTE,
     Select,
     AuthLayout,
+    LoadingSpinner
 }

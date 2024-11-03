@@ -2,18 +2,21 @@ import React, {useState} from 'react'
 import authService from '../appwrite/auth'
 import {Link ,useNavigate} from 'react-router-dom'
 import {login} from '../store/authSlice'
-import {Button, Input, Logo} from './index.js'
-import {useDispatch} from 'react-redux'
+import {Button, Input, Logo, LoadingSpinner} from './index.js'
+import {useDispatch, useSelector} from 'react-redux'
 import {useForm} from 'react-hook-form'
+import { setLoading, unSetLoading } from '../store/loadingSlice.js'
 
 function Signup() {
     const navigate = useNavigate()
     const [error, setError] = useState("")
     const dispatch = useDispatch()
     const {register, handleSubmit} = useForm()
+    const loading = useSelector((state) => state.loading.loading)
 
     const create = async(data) => {
         setError("")
+        dispatch(setLoading()) // Start loading
         try {
             const userData = await authService.createAccount(data)
             if (userData) {
@@ -23,6 +26,8 @@ function Signup() {
             }
         } catch (error) {
             setError(error.message)
+        }  finally {
+            dispatch(unSetLoading()); // End loading
         }
     }
 
@@ -75,7 +80,7 @@ function Signup() {
                             required: true,})}
                         />
                         <Button type="submit" className="w-full">
-                            Create Account
+                            {loading ? <LoadingSpinner /> : "sign-in"} {/* Show Spinner or Button text */}
                         </Button>
                     </div>
                 </form>
