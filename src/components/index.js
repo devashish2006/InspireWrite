@@ -1,4 +1,4 @@
-import Header from "./header/Header"
+// import Header from "./header/Header";
 import Footer from "./footer/Footer";
 import Container from "../container/Container";
 import Logo from "./Logo";
@@ -15,7 +15,7 @@ import PostForm from "./post-form/PostForm";
 import LoadingSpinner from "./loadingSpinner";
 
 export  {
-    Header,
+    // Header,
     Footer,
     Container,
     Logo,
