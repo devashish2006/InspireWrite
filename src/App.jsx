@@ -30,7 +30,7 @@ function App() {
       <div className='w-full block'>
         <Header />
         <main>
-        TODO:  <Outlet />
+        IF <b>SUBMIT</b> BUTTON NOT WORKS PLEASE REFRESH THE PAGE ONCE :)  <Outlet />
         </main>
         <Footer />
       </div>
